@@ -3,7 +3,7 @@
 Pod::Spec.new do |s|
 
   s.name         = "KINBarCodeScanner"
-  s.version      = "0.0.1"
+  s.version      = "0.0.2"
   s.summary      = "Simple barcode scanning for your apps."
 
   s.description  = <<-DESC
@@ -16,6 +16,7 @@ Pod::Spec.new do |s|
   s.platform     = :ios, '7.0'
   s.source       = { :git => "https://github.com/dfmuir/KINBarCodeScanner.git", :tag => s.version.to_s }
   s.source_files  = 'KINBarCodeScanner', 'KINBarCodeScanner/**/*.{h,m}'
+  s.resources = "Assets/*.png"
   s.frameworks = 'AVFoundation'
   s.requires_arc = true
 

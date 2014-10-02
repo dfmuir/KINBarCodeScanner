@@ -31,6 +31,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <AVFoundation/AVFoundation.h>
 
 @class KINBarCodeScannerViewController;
 
@@ -38,42 +39,65 @@
 
 @required
 
-/* Called when a valid code string is detected */
-- (void)codeScanner:(KINBarCodeScannerViewController *)codeScanner didDetectCodeString:(NSString *)codeString;
-
-/* Called when the user presses the cancel button before a code is detected */
-- (void)didCancelCodeScanner:(KINBarCodeScannerViewController *)codeScanner;
-
-@optional
-
-/* 
-    Called on the delegate to validate the detected code string
-    Can be implemented to only allow detection of code strings matching requirments
-    This method may be called frequently, so it must be efficient to prevent capture performance problems
-*/
-- (BOOL)codeScanner:(KINBarCodeScannerViewController *)codeScanner shouldDetectCodeString:(NSString *)codeString;
+/*
+ Called when a valid code string is detected
+ */
+- (void)barCodeScanner:(KINBarCodeScannerViewController *)barCodeScanner didDetectCodeString:(NSString *)codeString;
 
 
 /*
-    Returns to enable or disable vibration when barcode is detected
-    If not specified, defaults to YES
-*/
-- (BOOL)shouldVibrateOnDetectionForCodeScanner:(KINBarCodeScannerViewController *)codeScanner;
+ Called when the user presses the cancel button before a code is detected
+ */
+- (void)didCancelBarCodeScanner:(KINBarCodeScannerViewController *)codeScanner;
 
+@optional
 
-/*  Returns array of AVMetadataObjectType strings to scan for
-    Only codes in this array will be detected
-    If not specified all supported code types will be detected
-*/
-- (NSArray *)detectableCodeTypesForCodeScanner:(KINBarCodeScannerViewController *)codeScanner;
+/*
+ Called on the delegate to determine if codeString is detectable
+ 
+ If not implemented, all code strings will be detectable
+ 
+ This method may be called frequently, so it must be efficient to prevent capture performance problems
+ */
+- (BOOL)barCodeScanner:(KINBarCodeScannerViewController *)barCodeScanner shouldDetectCodeString:(NSString *)codeString;
 
 @end
-
 
 
 @interface KINBarCodeScannerViewController : UIViewController
 
 @property (nonatomic, weak) id <KINBarCodeScannerDelegate> delegate;
+
+/* Enable/disable vibration on code detection */
+@property (nonatomic, assign) BOOL vibratesOnDetection;
+
+/* Color of highlight box around code that is detectable */
+@property (nonatomic, strong) UIColor *detectableHighlightColor;
+
+/* Color of highlight box around code that is not detectable */
+@property (nonatomic, strong) UIColor *undetectableHighlightColor;
+
+/* Stroke width of the highlight box around codes */
+@property (nonatomic, strong) NSNumber *hightlightStrokeWidth;
+
+/* Delay in seconds after detection before returning to allow user to see highlighted code and (possibly) experience vibration */
+@property (nonatomic, strong) NSNumber *delayAfterDetection;
+
+/* Enable/disable highlighting of codes that are undetectable */
+@property (nonatomic, assign) BOOL shouldHighlightUndetectableCodes;
+
+/* The cancel button can be configured */
+@property (nonatomic, strong) UIBarButtonItem *cancelButton;
+
+/* The flashlight button can be configured */
+@property (nonatomic, strong) UIBarButtonItem *flashlightButton;
+
+/* The toolbar can be configured */
+@property (nonatomic, strong) UIToolbar *toolbar;
+
+
+/* Initialize with an NSArray of AVMetadataObjectType strings */
+- (id)initWithMetadataObjectTypes:(NSArray *)metadataObjectTypes;
 
 @end
 

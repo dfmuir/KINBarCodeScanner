@@ -32,11 +32,9 @@
 
 #import "KINBarCodeScannerViewController.h"
 
-#import <AudioToolbox/AudioServices.h>
-#import <AVFoundation/AVFoundation.h>
-#import <QuartzCore/QuartzCore.h>
-
 @interface KINBarCodeScannerViewController () <AVCaptureMetadataOutputObjectsDelegate>
+
+@property (nonatomic, strong) NSArray *metadataObjectTypes;
 
 @property (nonatomic, strong) AVCaptureSession *captureSession;
 @property (nonatomic, strong) AVCaptureDeviceInput *deviceInput;
@@ -48,23 +46,65 @@
 @property (nonatomic, strong) NSArray *invalidCodeObjects;
 @property (nonatomic, strong) AVMetadataMachineReadableCodeObject *selectedCodeObject;
 
-@property (nonatomic, strong) UIButton *cancelButton;
-
 @property (nonatomic, strong) UITapGestureRecognizer *tapGestureRecognizer;
+
+@property (nonatomic, assign) BOOL flashlightOn;
 
 @end
 
-static CGFloat KINCodeScannerSelectionBoxStrokeWidth = 4.0f;
-
-static CGFloat KINCodeScannerDefaultDelayAfterDetection = 1.0f;
 
 @implementation KINBarCodeScannerViewController
+
+#pragma mark - Initialization
+
+- (id)init {
+    return [self initWithMetadataObjectTypes:nil];
+}
+
+- (id)initWithMetadataObjectTypes:(NSArray *)metadataObjectTypes {
+    self = [super init];
+    if(self) {
+        
+        _metadataObjectTypes = metadataObjectTypes;
+        
+        // Assign default values
+        self.vibratesOnDetection = YES;
+        self.detectableHighlightColor = [UIColor greenColor];
+        self.undetectableHighlightColor = [UIColor redColor];
+        self.hightlightStrokeWidth = @4.0f;
+        self.delayAfterDetection = @1.0f;
+        self.shouldHighlightUndetectableCodes = YES;
+        
+        // Create cancel button
+        self.cancelButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"cancel_button"] style:UIBarButtonItemStylePlain target:self action:@selector(cancelButtonPressed:)];
+        
+        self.flashlightButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"flashlight_off_button"] style:UIBarButtonItemStylePlain target:self action:@selector(flashlightButtonPressed:)];
+        
+        self.toolbar = [[UIToolbar alloc] init];
+        self.toolbar.translatesAutoresizingMaskIntoConstraints = NO;
+        [self.view addSubview:self.toolbar];
+        
+        UIBarButtonItem *fixedSpaceItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:nil action:nil];
+        fixedSpaceItem.width = self.cancelButton.width;
+        
+        UIBarButtonItem *flexibleSpaceItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
+        
+        self.toolbar.items = @[flexibleSpaceItem, self.cancelButton, flexibleSpaceItem, self.flashlightButton];
+        
+        [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.toolbar attribute:NSLayoutAttributeBottom relatedBy:0 toItem:self.view attribute:NSLayoutAttributeBottom multiplier:1.0f constant:0.0f]];
+        [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.toolbar attribute:NSLayoutAttributeWidth relatedBy:0 toItem:self.view attribute:NSLayoutAttributeWidth multiplier:1.0f constant:0.0f]];
+        
+    }
+    return self;
+}
+
+#pragma mark - View Controller Lifecycle
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     
     self.captureSession = [[AVCaptureSession alloc] init];
-   
+    
     NSError *error = nil;
     self.deviceInput = [AVCaptureDeviceInput deviceInputWithDevice:[AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo] error:&error];
     if([self.captureSession canAddInput:self.deviceInput]) {
@@ -81,33 +121,18 @@ static CGFloat KINCodeScannerDefaultDelayAfterDetection = 1.0f;
     self.previewLayer.frame = self.view.bounds;
     [self.view.layer addSublayer:self.previewLayer];
     
-    
     self.highlightLayer = [CALayer layer];
     self.highlightLayer.delegate = self;
     self.highlightLayer.frame = self.previewLayer.bounds;
     [self.view.layer addSublayer:self.highlightLayer];
     
-    
-    self.cancelButton = [UIButton buttonWithType:UIButtonTypeSystem];
-    [self.cancelButton setTitle:@"Cancel" forState:UIControlStateNormal];
-    [self.cancelButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    [self.cancelButton addTarget:self action:@selector(cancelButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-    self.cancelButton.titleLabel.font = [UIFont systemFontOfSize:21.0f];
-    self.cancelButton.translatesAutoresizingMaskIntoConstraints = NO;
-    [self.view addSubview:self.cancelButton];
-    
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.cancelButton attribute:NSLayoutAttributeBottom relatedBy:0 toItem:self.view attribute:NSLayoutAttributeBottom multiplier:1.0f constant:-5.0f]];
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.cancelButton attribute:NSLayoutAttributeCenterX relatedBy:0 toItem:self.view attribute:NSLayoutAttributeCenterX multiplier:1.0f constant:0.0f]];
-
     self.tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didDetectTapGesture:)];
     [self.view addGestureRecognizer:self.tapGestureRecognizer];
-
 }
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     [self startScanning];
-    
 }
 
 - (void)didReceiveMemoryWarning {
@@ -120,6 +145,12 @@ static CGFloat KINCodeScannerDefaultDelayAfterDetection = 1.0f;
     [self.captureSession removeInput:self.deviceInput];
     [self.captureSession removeOutput:self.output];
     [self stopScanning];
+}
+
+- (void)viewDidLayoutSubviews {
+    [super viewDidLayoutSubviews];
+    self.previewLayer.frame = self.view.bounds;
+    self.highlightLayer.frame = self.previewLayer.bounds;
 }
 
 #pragma mark - Public Interface
@@ -143,15 +174,14 @@ static CGFloat KINCodeScannerDefaultDelayAfterDetection = 1.0f;
     self.invalidCodeObjects = nil;
     [self.highlightLayer setNeedsDisplay];
     
-    if([self shouldVibrate]) {
+    if(self.vibratesOnDetection) {
         AudioServicesPlaySystemSound(kSystemSoundID_Vibrate);
     }
     
-
-    if([self.delegate respondsToSelector:@selector(codeScanner:shouldDetectCodeString:)]) {
+    if([self.delegate respondsToSelector:@selector(barCodeScanner:didDetectCodeString:)]) {
         // Delay to allow user to see the highlighted code and experience the vibration before dismissing the view
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, KINCodeScannerDefaultDelayAfterDetection * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-                [self.delegate codeScanner:self didDetectCodeString:codeObject.stringValue];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, [self.delayAfterDetection doubleValue] * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+            [self.delegate barCodeScanner:self didDetectCodeString:codeObject.stringValue];
         });
     }
 }
@@ -192,27 +222,29 @@ static CGFloat KINCodeScannerDefaultDelayAfterDetection = 1.0f;
 - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx {
     
     if(self.selectedCodeObject) {
-        CGContextSetLineWidth(ctx, KINCodeScannerSelectionBoxStrokeWidth*2.0f);
+        CGContextSetLineWidth(ctx, [self.hightlightStrokeWidth doubleValue]*2.0f);
         UIBezierPath *path = [UIBezierPath bezierPathWithRect:self.selectedCodeObject.bounds];
         CGContextAddPath(ctx, path.CGPath);
-        CGContextSetStrokeColorWithColor(ctx, [[UIColor greenColor] CGColor]);
+        CGContextSetStrokeColorWithColor(ctx, [self.detectableHighlightColor CGColor]);
         CGContextStrokePath(ctx);
     }
     else {
-        CGContextSetLineWidth(ctx, KINCodeScannerSelectionBoxStrokeWidth);
+        CGContextSetLineWidth(ctx, [self.hightlightStrokeWidth doubleValue]);
         for (AVMetadataMachineReadableCodeObject *codeObject in self.validCodeObjects) {
             UIBezierPath *path = [UIBezierPath bezierPathWithRect:codeObject.bounds];
             CGContextAddPath(ctx, path.CGPath);
         }
-        CGContextSetStrokeColorWithColor(ctx, [[UIColor greenColor] CGColor]);
+        CGContextSetStrokeColorWithColor(ctx, [self.detectableHighlightColor CGColor]);
         CGContextStrokePath(ctx);
         
-        for (AVMetadataMachineReadableCodeObject *codeObject in self.invalidCodeObjects) {
-            UIBezierPath *path = [UIBezierPath bezierPathWithRect:codeObject.bounds];
-            CGContextAddPath(ctx, path.CGPath);
+        if(self.shouldHighlightUndetectableCodes) {
+            for (AVMetadataMachineReadableCodeObject *codeObject in self.invalidCodeObjects) {
+                UIBezierPath *path = [UIBezierPath bezierPathWithRect:codeObject.bounds];
+                CGContextAddPath(ctx, path.CGPath);
+            }
+            CGContextSetStrokeColorWithColor(ctx, [self.undetectableHighlightColor CGColor]);
+            CGContextStrokePath(ctx);
         }
-        CGContextSetStrokeColorWithColor(ctx, [[UIColor redColor] CGColor]);
-        CGContextStrokePath(ctx);
     }
 }
 
@@ -220,10 +252,33 @@ static CGFloat KINCodeScannerDefaultDelayAfterDetection = 1.0f;
 
 - (void)cancelButtonPressed:(id)sender {
     if(sender == self.cancelButton) {
-        if([self.delegate respondsToSelector:@selector(didCancelCodeScanner:)]) {
-            [self.delegate didCancelCodeScanner:self];
+        if([self.delegate respondsToSelector:@selector(didCancelBarCodeScanner:)]) {
+            [self.delegate didCancelBarCodeScanner:self];
         }
     }
+}
+
+- (void)flashlightButtonPressed:(id)sender {
+    if(sender == self.flashlightButton) {
+        self.flashlightOn = !self.flashlightOn;
+    }
+}
+
+#pragma mark - Flashlight
+
+- (void)setFlashlightOn:(BOOL)flashlightOn {
+    
+    _flashlightOn = flashlightOn;
+    
+    AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+    if ([device hasTorch]) {
+        [device lockForConfiguration:nil];
+        [device setTorchMode: self.flashlightOn ? AVCaptureTorchModeOn : AVCaptureTorchModeOff];
+        [device unlockForConfiguration];
+    }
+    
+    NSString *imageName = self.flashlightOn ? @"flashlight_on_button" : @"flashlight_off_button";
+    [self.flashlightButton setImage:[UIImage imageNamed:imageName]];
 }
 
 #pragma mark - Tap Gesture Recognizer
@@ -243,38 +298,34 @@ static CGFloat KINCodeScannerDefaultDelayAfterDetection = 1.0f;
 
 - (void)updateCodeTypes {
     
-    NSMutableSet *codeTypes;
-    if([self.delegate respondsToSelector:@selector(detectableCodeTypesForCodeScanner:)] && [self.delegate detectableCodeTypesForCodeScanner:self]) {
-        codeTypes = [NSMutableSet setWithArray:[self.delegate detectableCodeTypesForCodeScanner:self]];
+    NSMutableSet *metadataObjectTypesSet;
+    if(self.metadataObjectTypes && [self.metadataObjectTypes count] > 0) {
+        metadataObjectTypesSet = [NSMutableSet setWithArray:self.metadataObjectTypes];
         // Remove any unavailable metadata object types from specified array
-        [codeTypes intersectSet:[NSSet setWithArray:self.output.availableMetadataObjectTypes]];
+        [metadataObjectTypesSet intersectSet:[NSSet setWithArray:self.output.availableMetadataObjectTypes]];
     }
     else {
-        codeTypes = [NSMutableSet setWithArray:self.output.availableMetadataObjectTypes];
+        metadataObjectTypesSet = [NSMutableSet setWithArray:self.output.availableMetadataObjectTypes];
     }
     
-    // Remove face type metadata objects
-    [codeTypes removeObject:AVMetadataObjectTypeFace];
-
-    // This assertion could fail because detectableCodeTypesForCodeScanner: is not specified properly, or because AVCaptureMetadataOutput does not support any of the specified codes in this version of iOS
-    NSAssert([codeTypes count] > 0, @"No available code types specified in detectableCodeTypesForCodeScanner:");
+    // Disable face detction. Faces are not codes.
+    [metadataObjectTypesSet removeObject:AVMetadataObjectTypeFace];
     
-    self.output.metadataObjectTypes = [codeTypes allObjects];
+    // This assertion could fail because _metadataObjectTypes is not specified properly, or because AVCaptureMetadataOutput does not support any of the specified codes in this version of iOS
+    NSAssert([metadataObjectTypesSet count] > 0, @"No available code types specified in detectableCodeTypesForCodeScanner:");
+    
+    self.output.metadataObjectTypes = [metadataObjectTypesSet allObjects];
 }
 
 #pragma mark - Delegate Helpers
 
 - (BOOL)isValidCodeObject:(AVMetadataMachineReadableCodeObject *)codeObject {
     if(codeObject && codeObject.stringValue) {
-        if(![self.delegate respondsToSelector:@selector(codeScanner:shouldDetectCodeString:)] || [self.delegate codeScanner:self shouldDetectCodeString:codeObject.stringValue]) {
+        if(![self.delegate respondsToSelector:@selector(barCodeScanner:shouldDetectCodeString:)] || [self.delegate barCodeScanner:self shouldDetectCodeString:codeObject.stringValue]) {
             return YES;
         }
     }
     return NO;
-}
-
-- (BOOL)shouldVibrate {
-    return (![self.delegate respondsToSelector:@selector(shouldVibrateOnDetectionForCodeScanner:)] || [self.delegate shouldVibrateOnDetectionForCodeScanner:self]);
 }
 
 #pragma mark - Status Bar
@@ -285,14 +336,12 @@ static CGFloat KINCodeScannerDefaultDelayAfterDetection = 1.0f;
 
 #pragma mark - Interface Orientation
 
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
-    return (interfaceOrientation == UIInterfaceOrientationPortrait);
+- (BOOL)shouldAutorotate {
+    return NO;
 }
 
 - (NSUInteger)supportedInterfaceOrientations{
     return UIInterfaceOrientationMaskPortrait;
 }
-
-
 
 @end
