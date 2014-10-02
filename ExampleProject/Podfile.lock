@@ -1,0 +1,10 @@
+PODS:
+  - KINBarCodeScanner (0.0.2)
+
+DEPENDENCIES:
+  - KINBarCodeScanner (~> 0.0)
+
+SPEC CHECKSUMS:
+  KINBarCodeScanner: 658d0362269353463768e44be0072c9edff7994c
+
+COCOAPODS: 0.34.1
