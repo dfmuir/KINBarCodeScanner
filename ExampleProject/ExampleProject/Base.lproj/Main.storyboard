@@ -45,6 +45,7 @@
                                     <segment title="Anything"/>
                                     <segment title="URL"/>
                                     <segment title="Email"/>
+                                    <segment title="None"/>
                                 </segments>
                                 <color key="tintColor" white="0.15339872260000001" alpha="1" colorSpace="calibratedWhite"/>
                             </segmentedControl>
@@ -67,6 +68,7 @@
                             <constraint firstAttribute="centerX" secondItem="iPW-gw-r9h" secondAttribute="centerX" id="0GM-cp-HLm"/>
                             <constraint firstItem="TMV-2A-U4a" firstAttribute="top" secondItem="iPW-gw-r9h" secondAttribute="bottom" constant="7" id="7hB-kH-eov"/>
                             <constraint firstItem="8cX-YH-fK6" firstAttribute="top" secondItem="TMV-2A-U4a" secondAttribute="bottom" constant="97" id="8fH-gb-0m9"/>
+                            <constraint firstAttribute="width" secondItem="4yp-tq-V8V" secondAttribute="width" constant="40" id="AuU-MX-eKR"/>
                             <constraint firstItem="iPW-gw-r9h" firstAttribute="top" secondItem="M1R-9y-fcr" secondAttribute="bottom" constant="19" id="L4T-f5-pai"/>
                             <constraint firstItem="M1R-9y-fcr" firstAttribute="top" secondItem="M8v-Ek-BVT" secondAttribute="bottom" constant="-3" id="TOM-HB-up1"/>
                             <constraint firstAttribute="centerX" secondItem="4yp-tq-V8V" secondAttribute="centerX" constant="5" id="Tuw-Uk-uNE"/>

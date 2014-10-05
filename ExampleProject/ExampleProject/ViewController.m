@@ -60,6 +60,9 @@
     else if(self.segmentedControl.selectedSegmentIndex == 2) { // Detect email strings
         return [self isValidEmailString:codeString];
     }
+    else if(self.segmentedControl.selectedSegmentIndex == 3) { // Reject all strings
+        return NO;
+    }
     return NO;
 }
 
