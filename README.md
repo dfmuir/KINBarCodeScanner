@@ -8,11 +8,19 @@ Features
 * Supports barcodes and QR codes
 * iOS 7 & 8 support for iPhone and iPad
 * Customizable on-the-fly bar code format validation
+* Touch to select from multiple codes
 * Built-in Flashlight
 * Portrait and landscape orientation support
 * Customizable UI
 * Optional vibration on code detection
 * Installation with [CocoaPods](http://cocoapods.org/)
+
+Example Project
+------------------------
+The KINBarCodeScanner example project contains a fully functional example of a KINBarCodeScanner implementation. Test it out using the graphic below.
+![Example QR Codes](http://i.imgur.com/i4Pvr1y.png)
+
+The example project provides a number of options to demonstrate KINCodeScanner's code validation capabilties.
 
 Overview
 ------------------------
