@@ -22,7 +22,7 @@ Example Project
 The KINBarCodeScanner example project contains a fully functional example of a KINBarCodeScanner implementation. Test it out using the graphic below.
 ![Example QR Codes](http://i.imgur.com/i4Pvr1y.png)
 
-The example project provides a number of options to demonstrate KINCodeScanner's code validation capabilties.
+The example project provides a number of options to demonstrate KINCodeScanner's code validation capabilties. When multiple codes are highlighted in green as detectable, you can tap on a code to select it.
 
 Overview
 ------------------------
