@@ -3,11 +3,11 @@
 Pod::Spec.new do |s|
 
   s.name         = "KINBarCodeScanner"
-  s.version      = "0.0.2"
-  s.summary      = "Simple barcode scanning for your apps."
+  s.version      = "0.1.0"
+  s.summary      = "A barcode scanner module for your iOS apps."
 
   s.description  = <<-DESC
-                   KINCodeScammer is a simple bar code scanner module for your apps.
+                   KINCodeScammer is a simple bar code scanner module for your apps. Supports barcodes and QR codes. Compatible with iOS 7 and iOS 8.
                    DESC
 
   s.homepage     = "https://github.com/dfmuir/KINBarCodeScanner"
