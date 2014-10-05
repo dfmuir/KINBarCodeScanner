@@ -3,6 +3,8 @@ KINBarCodeScanner
 
 A barcode scanner module for your iOS apps.
 
+![KINBarCodeScanner](http://i.imgur.com/hukcqz9.png)
+
 Features
 ------------------------
 * Supports barcodes and QR codes
