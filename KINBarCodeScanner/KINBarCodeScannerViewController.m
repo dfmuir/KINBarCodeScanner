@@ -76,9 +76,9 @@
         self.shouldHighlightUndetectableCodes = YES;
         
         // Create cancel button
-        self.cancelButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"cancel_button"] style:UIBarButtonItemStylePlain target:self action:@selector(cancelButtonPressed:)];
+        self.cancelButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageWithContentsOfFile:[[NSBundle bundleForClass:self.class] pathForResource:@"cancel_button" ofType:@"png"]] style:UIBarButtonItemStylePlain target:self action:@selector(cancelButtonPressed:)];
         
-        self.flashlightButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"flashlight_off_button"] style:UIBarButtonItemStylePlain target:self action:@selector(flashlightButtonPressed:)];
+        self.flashlightButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageWithContentsOfFile:[[NSBundle bundleForClass:self.class] pathForResource:@"flashlight_off_button" ofType:@"png"]] style:UIBarButtonItemStylePlain target:self action:@selector(flashlightButtonPressed:)];
         
         self.toolbar = [[UIToolbar alloc] init];
         self.toolbar.translatesAutoresizingMaskIntoConstraints = NO;
@@ -278,7 +278,7 @@
     }
     
     NSString *imageName = self.flashlightOn ? @"flashlight_on_button" : @"flashlight_off_button";
-    [self.flashlightButton setImage:[UIImage imageNamed:imageName]];
+    [self.flashlightButton setImage:[UIImage imageWithContentsOfFile:[[NSBundle bundleForClass:self.class] pathForResource:imageName ofType:@"png"]]];
 }
 
 #pragma mark - Tap Gesture Recognizer
