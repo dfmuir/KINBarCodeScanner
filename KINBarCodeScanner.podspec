@@ -3,7 +3,7 @@
 Pod::Spec.new do |s|
 
   s.name         = "KINBarCodeScanner"
-  s.version      = "0.1.1"
+  s.version      = "0.1.2"
   s.summary      = "A barcode scanner module for your iOS apps."
 
   s.description  = <<-DESC
