@@ -43,7 +43,7 @@
 			<key>attributes</key>
 			<dict>
 				<key>LastUpgradeCheck</key>
-				<string>0600</string>
+				<string>0730</string>
 				<key>ORGANIZATIONNAME</key>
 				<string>Kinwa, Inc.</string>
 				<key>TargetAttributes</key>
@@ -161,6 +161,7 @@
 				<string>3B2D3B9F19DBB34C00846AE2</string>
 				<string>3B2D3BA019DBB34C00846AE2</string>
 				<string>B7B175054626454064CF68DC</string>
+				<string>D3314482147A72FB6FEC0520</string>
 			</array>
 			<key>buildRules</key>
 			<array/>
@@ -600,6 +601,8 @@
 				<string>NO</string>
 				<key>ENABLE_STRICT_OBJC_MSGSEND</key>
 				<string>YES</string>
+				<key>ENABLE_TESTABILITY</key>
+				<string>YES</string>
 				<key>GCC_C_LANGUAGE_STANDARD</key>
 				<string>gnu99</string>
 				<key>GCC_DYNAMIC_NO_PIC</key>
@@ -739,6 +742,8 @@
 				<string>7.0</string>
 				<key>LD_RUNPATH_SEARCH_PATHS</key>
 				<string>$(inherited) @executable_path/Frameworks</string>
+				<key>PRODUCT_BUNDLE_IDENTIFIER</key>
+				<string>com.kinwa.barcodescanner.$(PRODUCT_NAME:rfc1034identifier)</string>
 				<key>PRODUCT_NAME</key>
 				<string>$(TARGET_NAME)</string>
 			</dict>
@@ -761,6 +766,8 @@
 				<string>7.0</string>
 				<key>LD_RUNPATH_SEARCH_PATHS</key>
 				<string>$(inherited) @executable_path/Frameworks</string>
+				<key>PRODUCT_BUNDLE_IDENTIFIER</key>
+				<string>com.kinwa.barcodescanner.$(PRODUCT_NAME:rfc1034identifier)</string>
 				<key>PRODUCT_NAME</key>
 				<string>$(TARGET_NAME)</string>
 			</dict>
@@ -803,6 +810,8 @@
 				<string>ExampleProjectTests/Info.plist</string>
 				<key>LD_RUNPATH_SEARCH_PATHS</key>
 				<string>$(inherited) @executable_path/Frameworks @loader_path/Frameworks</string>
+				<key>PRODUCT_BUNDLE_IDENTIFIER</key>
+				<string>com.kinwa.barcodescanner.$(PRODUCT_NAME:rfc1034identifier)</string>
 				<key>PRODUCT_NAME</key>
 				<string>$(TARGET_NAME)</string>
 				<key>TEST_HOST</key>
@@ -828,6 +837,8 @@
 				<string>ExampleProjectTests/Info.plist</string>
 				<key>LD_RUNPATH_SEARCH_PATHS</key>
 				<string>$(inherited) @executable_path/Frameworks @loader_path/Frameworks</string>
+				<key>PRODUCT_BUNDLE_IDENTIFIER</key>
+				<string>com.kinwa.barcodescanner.$(PRODUCT_NAME:rfc1034identifier)</string>
 				<key>PRODUCT_NAME</key>
 				<string>$(TARGET_NAME)</string>
 				<key>TEST_HOST</key>
@@ -910,6 +921,30 @@
 			<string>03623DE51CEB70C02BB231F5</string>
 			<key>isa</key>
 			<string>PBXBuildFile</string>
+		</dict>
+		<key>D3314482147A72FB6FEC0520</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array/>
+			<key>inputPaths</key>
+			<array/>
+			<key>isa</key>
+			<string>PBXShellScriptBuildPhase</string>
+			<key>name</key>
+			<string>Embed Pods Frameworks</string>
+			<key>outputPaths</key>
+			<array/>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+			<key>shellPath</key>
+			<string>/bin/sh</string>
+			<key>shellScript</key>
+			<string>"${SRCROOT}/Pods/Target Support Files/Pods/Pods-frameworks.sh"
+</string>
+			<key>showEnvVarsInLog</key>
+			<string>0</string>
 		</dict>
 		<key>E012DD65D47D047B32F77D57</key>
 		<dict>
