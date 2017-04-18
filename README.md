@@ -8,7 +8,7 @@ A barcode scanner module for your iOS apps.
 Features
 ------------------------
 * Supports barcodes and QR codes
-* iOS 7 & 8 support for iPhone and iPad
+* iOS 8 support for iPhone and iPad
 * Customizable on-the-fly bar code format validation
 * Touch to select from multiple codes
 * Built-in Flashlight
@@ -26,7 +26,7 @@ The example project provides a number of options to demonstrate KINCodeScanner's
 
 Overview
 ------------------------
-KINBarCodeScanner provides a UIViewController wrapper to AVCaptureSession's built-in ability to process barcodes and QR codes in iOS 7+.
+KINBarCodeScanner provides a UIViewController wrapper to AVCaptureSession's built-in ability to process barcodes and QR codes in iOS 8+.
 
 KINBarCodeScanner consists of a single component:
 
@@ -59,6 +59,5 @@ Installation With CocoaPods
 #### Podfile
 
 ```ruby
-platform :ios, '7.0'
-pod 'KINBarCodeScanner'
+pod 'KINBarCodeScanner
 ```
